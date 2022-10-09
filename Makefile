@@ -23,4 +23,4 @@ lu_pthread.o: lu_pthread.cpp include/lu_pthread.hpp
 	$(CC) $(CFLAGS) -c $^
 
 clean: 
-	rm lu_sequential.o matrix.o test test1 lu_openmp.o
+	rm *.o test test1 include/*.gch
