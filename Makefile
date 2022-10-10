@@ -3,18 +3,18 @@ CFLAGS = -Wall -g
 OMPLINKER = -fopenmp
 PLINKER = -lpthread
 
-all: test1
+all: test_seq test_omp test_pthread
 
-test2: test2.cpp lu_pthread.o matrix.o
+test_pthread: test_pthread.cpp lu_pthread.o matrix.o
 	$(CC) $(CFLAGS) $(PLINKER) $(OMPLINKER) -o $@ $^
 
-test1: test1.cpp lu_openmp.o matrix.o
+test_omp: test_omp.cpp lu_openmp.o matrix.o
 	$(CC) $(CFLAGS) $(OMPLINKER) -o $@ $^
 
-test: test.cpp lu_sequential.o matrix.o
-	$(CC) $(CFLAGS) -o $@ $^
+test_seq: test_seq.cpp lu_sequential.o matrix.o
+	$(CC) -o $@ $^
 
-lu_sequential.o: lu_sequential.cpp include/lu_sequential.hpp matrix.o
+lu_sequential.o: lu_sequential.cpp include/lu_sequential.hpp
 	$(CC) $(CFLAGS) -c $^ 
 
 matrix.o: matrix.cpp include/matrix.hpp
@@ -27,4 +27,4 @@ lu_pthread.o: lu_pthread.cpp include/lu_pthread.hpp
 	$(CC) $(CFLAGS) $(PLINKER) -c $^
 
 clean: 
-	rm *.o test test1 test2 include/*.gch
+	rm *.o test_seq test_omp test_pthread include/*.gch

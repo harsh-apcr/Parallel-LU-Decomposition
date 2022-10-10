@@ -9,16 +9,12 @@
 #include "include/lu_pthread.hpp"
 #include <pthread.h>
 
-#define NUM_THREADS 16
-
 pthread_barrier_t barrier_fun2;
 pthread_mutex_t mutex_fun2;
 
 inline double dabs(double d) { 
     return d > 0 ? d : -d;
 }
-
-
 
 struct struct1 {
     std::vector<int>* p;
@@ -103,6 +99,7 @@ void* parallel_fun3(void *args) {
         l.at(i, k) = a.at(i, k) / u.at(k, k);
         u.at(k, i) = a.at(k, i);
     }
+
     return NULL;
 }
 
@@ -123,6 +120,16 @@ void* parallel_fun4(void* args) {
             a.at(i, j) = a.at(i, j) - l.at(i, k) * u.at(k, j);
         }
     }
+
+    // int chunk_size = 16;
+    // int from = k+1+tid*chunk_size;
+    // for(int i=from;i<n;i+=NUM_THREADS * chunk_size) {
+    //     for(int r=i;r<i+chunk_size;r++) {
+    //         for(int j=k+1;j<n;j++) {
+    //             a.at(r, j) -= l.at(r, k) * u.at(k, j);
+    //         }
+    //     }
+    // }
     return NULL;
 }
 
@@ -164,6 +171,7 @@ void lu_factorise_pthread(matrix a, matrix& l, matrix& u, std::vector<int>& p) {
         pthread_barrier_destroy(&barrier_fun2);
         pthread_mutex_destroy(&mutex_fun2);
 
+
         if (max == 0.0) {
             throw std::invalid_argument("matrix is singular");
         }
@@ -172,10 +180,11 @@ void lu_factorise_pthread(matrix a, matrix& l, matrix& u, std::vector<int>& p) {
         int temp = p[k];
         p[k] = p[k_];     
         p[k_] = temp;
+
         // choosing not to parallelize memcpy
         swap_rows(a, k, k_);
         swap_rows(l, k, k_, k);
-        
+
         u.at(k, k) = a.at(k, k);
 
         struct struct3 args3[NUM_THREADS];
@@ -188,6 +197,8 @@ void lu_factorise_pthread(matrix a, matrix& l, matrix& u, std::vector<int>& p) {
             pthread_join(threads[i], NULL);
         }
 
+        // clock_t start, end;
+        // start = clock();
         for(int i=0;i<NUM_THREADS;i++) {
             args3[i].a = &a;args3[i].u = &u;args3[i].l = &l;args3[i].tid = i;args3[i].k = k;
             pthread_create(&threads[i], NULL, parallel_fun4, &args3[i]);
@@ -196,10 +207,9 @@ void lu_factorise_pthread(matrix a, matrix& l, matrix& u, std::vector<int>& p) {
         for(int i=0;i<NUM_THREADS;i++) {
             pthread_join(threads[i], NULL);
         }
-        // clock_t start, end;
-        // start = clock();
+        
         
         // end = clock();
         // printf("bottleneck time : %lf\n", double(end - start) / double(CLOCKS_PER_SEC));
-    }   
+    }
 }

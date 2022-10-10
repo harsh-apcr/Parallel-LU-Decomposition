@@ -1,6 +1,4 @@
-#include "include/lu_openmp.hpp"
 #include "include/lu_pthread.hpp"
-#include "include/lu_sequential.hpp"
 #include "include/matrix.hpp"
 #include <iostream>
 #include <cmath>
@@ -8,6 +6,8 @@
 #include <tuple>
 #include <pthread.h>
 #include <omp.h>
+
+int NUM_THREADS;
 
 double l2_norm(matrix& m) {
     double norm = 0;
@@ -21,11 +21,12 @@ double l2_norm(matrix& m) {
 }
 
 int main(int argc, char* argv[]) {
-    if (argc != 2) {
-        fprintf(stderr, "usage : ./test <size>\n");
+    if (argc != 3) {
+        fprintf(stderr, "usage : ./test_pthread <size> <num_thread>\n");
         exit(1);
     }
     int n = atoi(argv[1]);
+    NUM_THREADS = atoi(argv[2]);
     matrix m(n);
 
     matrix l(n, 0);
@@ -38,10 +39,15 @@ int main(int argc, char* argv[]) {
         << n << " : " << end - start 
         << " s" << std::endl; 
 
-    std::cout << "----Verify Correctness----" << std::endl;
+    std::cout << "Do you want to verify correctness(y/n) ? ";
 
-    matrix err = (permute(m, p) - l*u);
-    std::cout << "||(PA - LU)|| = " << l2_norm(err) << std::endl;
+    if (getchar() == 'y') {
+        std::cout << "----Verifying Correctness----" << std::endl;
+        std::cout << "this may take some time...... as the verification part is not optimized" << std::endl;
+        matrix err = (permute(m, p) - l*u);
+        std::cout << "||(PA - LU)|| = " << l2_norm(err) << std::endl;
+    }
+    
 
 
 }

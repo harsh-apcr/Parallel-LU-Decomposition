@@ -35,10 +35,14 @@ int main(int argc, char* argv[]) {
         << n << " : " << double(end - start) / double(CLOCKS_PER_SEC) 
         << " s" << std::endl; 
 
-    std::cout << "----Verify Correctness----" << std::endl;
+    std::cout << "Do you want to verify correctness(y/n) ? ";
 
-    matrix err = (permute(m, p) - l*u);
-    std::cout << "||(PA - LU)|| = " << l2_norm(err) << std::endl;
+    if (getchar() == 'y') {
+        std::cout << "----Verifying Correctness----" << std::endl;
+        std::cout << "this may take some time...... as the verification part is not optimized" << std::endl;
+        matrix err = (permute(m, p) - l*u);
+        std::cout << "||(PA - LU)|| = " << l2_norm(err) << std::endl;
+    }
 
 
 }

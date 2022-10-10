@@ -52,14 +52,14 @@ void lu_factorise_seq(matrix a, matrix& l, matrix& u, std::vector<int>& p) {
             l.at(i, k) = a.at(i, k) / u.at(k, k);
             u.at(k, i) = a.at(k, i);
         }
-        //clock_t start, end;
-        //start = clock();
+        // clock_t start, end;
+        // start = clock();
         for(int i=k+1;i<n;i++) {
             for(int j=k+1;j<n;j++) {
                 a.at(i, j) = a.at(i, j) - l.at(i, k) * u.at(k, j);
             }
         }
-        //end = clock();
-        //printf("bottleneck time : %lf\n", double(end - start) / double(CLOCKS_PER_SEC));
+        // end = clock();
+        // printf("bottleneck time : %lf\n", double(end - start) / double(CLOCKS_PER_SEC));
     }   
 }

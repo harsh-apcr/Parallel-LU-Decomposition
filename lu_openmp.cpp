@@ -61,7 +61,8 @@ void lu_factorise_omp(matrix a, matrix& l, matrix& u, std::vector<int>& p) {
 
         // deciding not to parallelize the swap 
         /*In a high-performance oriented system, especially with multiple sockets,
-         more threads are very important to exploit the available bandwidth.*/
+         more threads are very important to exploit the available bandwidth.
+         But in my machine improvements are not seen*/
         swap_rows(a, k, k_);
         swap_rows(l, k, k_, k);
         u.at(k, k) = a.at(k, k);
@@ -72,11 +73,14 @@ void lu_factorise_omp(matrix a, matrix& l, matrix& u, std::vector<int>& p) {
             u.at(k, i) = a.at(k, i);
         }
 
+        // double start = omp_get_wtime();
         #pragma omp parallel for collapse(2)
         for(int i=k+1;i<n;i++) {
             for(int j=k+1;j<n;j++) {
                 a.at(i, j) = a.at(i, j) - l.at(i, k) * u.at(k, j);
             }
         }
+        // double end = omp_get_wtime();
+        // printf("bottleneck time : %lfs\n", end - start);
     }
 }
